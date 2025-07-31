@@ -1,0 +1,365 @@
+# ========================================
+# 🔒 AUTENTICACIÓN
+# ========================================
+
+# Registrar usuario administrador
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+###
+
+# Iniciar sesión - Admin
+POST http://localhost:8000/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+###
+
+# ========================================
+# 📝 GESTIÓN DE NOTAS (ADMIN)
+# ========================================
+
+# Crear nota como admin
+POST http://localhost:8000/api/notes
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Nota Administrativa",
+  "content": "Esta es una nota creada por el administrador para compartir",
+  "is_public": false
+}
+
+###
+
+# ========================================
+# ❌ TESTS DE VALIDACIÓN DE ERRORES
+# ========================================
+
+# Test 1: ID No Numérico (404 - Route not found)
+PUT http://localhost:8000/api/notes/abc
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Test ID inválido",
+  "content": "Este request debería fallar"
+}
+
+###
+
+# Test 2: ID Cero (404 - Route not found)
+PUT http://localhost:8000/api/notes/0
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Test ID cero",
+  "content": "Este request debería fallar"
+}
+
+###
+
+# Test 3: ID Negativo (404 - Route not found)
+DELETE http://localhost:8000/api/notes/-1
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+# Test 4: ID Extremadamente Grande (500 -> 400)
+PUT http://localhost:8000/api/notes/999999999999999999999
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Test ID muy grande",
+  "content": "Este request debería dar 400 Bad Request"
+}
+
+###
+
+# Test 5: ID Válido Pero Nota No Existe (404)
+PUT http://localhost:8000/api/notes/99999
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Nota que no existe",
+  "content": "Esta nota no debería existir"
+}
+
+###
+
+# Obtener información del usuario
+GET http://localhost:8000/api/me
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# Obtener notas
+GET http://localhost:8000/api/notes
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# Obtener solo notas compartidas conmigo
+GET http://localhost:8000/api/notes/shared
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# Crear nota
+POST http://localhost:8000/api/notes
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Mi primera nota",
+  "content": "Este es el contenido de mi primera nota"
+}
+
+# Actualizar nota con id=1
+PUT http://localhost:8000/api/notes/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "title": "Título actualizado",
+  "content": "Contenido actualizado"
+}
+
+# Borrar nota con id=1
+DELETE http://localhost:8000/api/notes/1
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+# Compartir nota con id=1
+POST http://localhost:8000/api/notes/1/share
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+  "email": "otro_usuario@ejemplo.com"
+}
+
+###
+
+# Cerrar sesión (invalidar token)
+POST http://localhost:8000/api/logout
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+# EJEMPLO CON TOKEN REAL (para pruebas rápidas):
+# 1. Ejecuta este registro para obtener un token válido:
+
+POST http://localhost:8000/api/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Usuario Demo",
+  "email": "demo@ejemplo.com",
+  "password": "password123"
+}
+
+# 2. Copia el token de la respuesta y úsalo en las siguientes peticiones
+
+###
+
+# Test endpoint - verificar que la API está funcionando
+GET http://localhost:8000/api/me
+Accept: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+# PRUEBA COMPLETA DE COMPARTIR NOTAS:
+
+# 1. Registrar primer usuario
+POST http://localhost:8000/api/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Usuario Uno",
+  "email": "usuario1@test.com",
+  "password": "password123"
+}
+
+# 2. Crear una nota con el primer usuario (usa el token del paso 1)
+POST http://localhost:8000/api/notes
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TOKEN_USUARIO_1
+
+{
+  "title": "Nota compartida",
+  "content": "Esta nota será compartida con el usuario 2"
+}
+
+# 3. Compartir la nota con el segundo usuario (usa ID de la nota creada arriba)
+POST http://localhost:8000/api/notes/1/share
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TOKEN_USUARIO_1
+
+{
+  "email": "usuario2@test.com"
+}
+
+# 4. Registrar segundo usuario
+POST http://localhost:8000/api/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Usuario Dos",
+  "email": "usuario2@test.com",
+  "password": "password123"
+}
+
+# 5. Ver todas las notas del segundo usuario (debería incluir la nota compartida)
+GET http://localhost:8000/api/notes
+Accept: application/json
+Authorization: Bearer TOKEN_USUARIO_2
+
+# 6. Ver solo notas compartidas con el segundo usuario
+GET http://localhost:8000/api/notes/shared
+Accept: application/json
+Authorization: Bearer TOKEN_USUARIO_2
+
+###
+
+# PRUEBAS DE EDICIÓN DE NOTAS COMPARTIDAS:
+
+# 1. Registrar primer usuario (propietario)
+POST http://localhost:8000/api/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Usuario Propietario",
+  "email": "propietario@test.com",
+  "password": "password123"
+}
+
+# 2. Crear una nota como propietario (usa el token del paso 1)
+POST http://localhost:8000/api/notes
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TOKEN_PROPIETARIO
+
+{
+  "title": "Nota para compartir",
+  "content": "Esta nota será compartida y editada por otro usuario"
+}
+
+# 3. Compartir la nota con otro usuario (usa ID de la nota creada arriba)
+POST http://localhost:8000/api/notes/1/share
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TOKEN_PROPIETARIO
+
+{
+  "email": "editor@test.com"
+}
+
+# 4. Registrar segundo usuario (editor compartido)
+POST http://localhost:8000/api/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Usuario Editor",
+  "email": "editor@test.com",
+  "password": "password123"
+}
+
+# 5. 🔍 VERIFICAR PERMISOS del usuario editor sobre la nota
+GET http://localhost:8000/api/notes/1/permissions
+Accept: application/json
+Authorization: Bearer TOKEN_EDITOR
+
+# 6. ✏️ EDITAR LA NOTA COMPARTIDA como usuario editor
+PUT http://localhost:8000/api/notes/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TOKEN_EDITOR
+
+{
+  "title": "Nota editada por usuario compartido",
+  "content": "Este contenido fue modificado por el usuario con quien se compartió la nota"
+}
+
+# 7. Verificar que los cambios se guardaron correctamente
+GET http://localhost:8000/api/notes/1
+Accept: application/json
+Authorization: Bearer TOKEN_EDITOR
+
+# 8. Registrar tercer usuario (no compartido)
+POST http://localhost:8000/api/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Usuario No Autorizado",
+  "email": "noautorizado@test.com",
+  "password": "password123"
+}
+
+# 9. ❌ INTENTAR EDITAR sin permisos (debería fallar con 403)
+PUT http://localhost:8000/api/notes/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer TOKEN_NO_AUTORIZADO
+
+{
+  "title": "Intento de edición no autorizada",
+  "content": "Este contenido no debería guardarse"
+}
+
+###
+
+# PRUEBAS DEL ADMINISTRADOR:
+
+# 1. Login del administrador (creado automáticamente en la base de datos)
+POST http://localhost:8000/api/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+# 2. Ver todas las notas como administrador (debe ver TODAS las notas del sistema)
+GET http://localhost:8000/api/notes
+Accept: application/json
+Authorization: Bearer TOKEN_ADMIN
+
+# 3. Login del usuario de test (también creado automáticamente)
+POST http://localhost:8000/api/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password"
+}
+
+# 4. Ver notas como usuario normal (solo ve sus propias notas, públicas y compartidas)
+GET http://localhost:8000/api/notes
+Accept: application/json
+Authorization: Bearer TOKEN_TEST_USER

@@ -1,0 +1,86 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.env.local
+.env.testing
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/logs/*.log
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# Database
+/database/database.sqlite
+/database/*.sqlite
+/database/*.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+/.vscode/
+/.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Cache and log files
+*.cache
+storage/logs/laravel.log
+bootstrap/cache/*.php
+!bootstrap/cache/.gitignore
+
+# Test coverage
+/coverage/
+/.phpunit.cache/
+
+# NPM
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Composer
+/vendor/
+composer.phar
+
+# Laravel specific
+/public/storage
+/storage/app/public/*
+!/storage/app/public/.gitignore
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore

@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader --no-dev
+
+      - name: Generate key
+        run: php artisan key:generate --ansi
+
+      - name: Cache config
+        run: php artisan config:cache
+
+      - name: Cache routes
+        run: php artisan route:cache
+
+      - name: Cache views
+        run: php artisan view:cache
+
+      - name: Run database migrations
+        run: php artisan migrate --force
+
+      # Add your deployment steps here
+      # For example, deploying to a server via SSH, Docker, etc.
+      - name: Deploy notification
+        run: echo "🚀 Deployment completed successfully!"
