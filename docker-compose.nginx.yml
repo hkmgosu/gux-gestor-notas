@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Proxy reverso Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: gestor-notas-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - gestor-notas-network
+
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: gestor-notas-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gestor_notas
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: gestor_user
+      MYSQL_PASSWORD: gestor_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - gestor-notas-network
+
+  # Backend Laravel
+  backend:
+    build:
+      context: ./gestor-notas-backend
+      dockerfile: Dockerfile
+    container_name: gestor-notas-backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_KEY: base64:your-app-key-here
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: gestor_notas
+      DB_USERNAME: gestor_user
+      DB_PASSWORD: gestor_password
+      JWT_SECRET: your-jwt-secret-here
+    volumes:
+      - ./gestor-notas-backend:/var/www/html
+      - backend_storage:/var/www/html/storage
+    expose:
+      - "80"
+    depends_on:
+      - mysql
+    networks:
+      - gestor-notas-network
+
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ./gestor-notas-frontend
+      dockerfile: Dockerfile
+    container_name: gestor-notas-frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost/api
+    volumes:
+      - ./gestor-notas-frontend:/app
+      - /app/node_modules
+      - /app/.next
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    networks:
+      - gestor-notas-network
+
+  # phpMyAdmin (opcional, para administrar la base de datos)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: gestor-notas-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: gestor_user
+      PMA_PASSWORD: gestor_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - gestor-notas-network
+
+volumes:
+  mysql_data:
+  backend_storage:
+
+networks:
+  gestor-notas-network:
+    driver: bridge

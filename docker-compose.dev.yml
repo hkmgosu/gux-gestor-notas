@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: gestor-notas-mysql-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gestor_notas
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: gestor_user
+      MYSQL_PASSWORD: gestor_password
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - gestor-notas-network
+
+  # Backend Laravel (desarrollo)
+  backend:
+    build:
+      context: ./gestor-notas-backend
+      dockerfile: Dockerfile.dev
+    container_name: gestor-notas-backend-dev
+    restart: unless-stopped
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      APP_KEY: base64:your-app-key-here
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: gestor_notas
+      DB_USERNAME: gestor_user
+      DB_PASSWORD: gestor_password
+      JWT_SECRET: your-jwt-secret-here
+    volumes:
+      - ./gestor-notas-backend:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      - mysql
+    networks:
+      - gestor-notas-network
+
+  # Frontend Next.js (desarrollo)
+  frontend:
+    build:
+      context: ./gestor-notas-frontend
+      dockerfile: Dockerfile.dev
+    container_name: gestor-notas-frontend-dev
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    volumes:
+      - ./gestor-notas-frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - gestor-notas-network
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: gestor-notas-phpmyadmin-dev
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: gestor_user
+      PMA_PASSWORD: gestor_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - gestor-notas-network
+
+volumes:
+  mysql_data_dev:
+
+networks:
+  gestor-notas-network:
+    driver: bridge
