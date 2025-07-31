@@ -199,6 +199,29 @@ docker-compose -f docker-compose.dev.yml exec backend php artisan migrate:rollba
 ### Frontend no se conecta al backend
 - Verifica que la variable `NEXT_PUBLIC_API_URL` esté correctamente configurada
 
+### Error: "failed to solve: Unavailable: error reading from server: EOF"
+- Este error puede ocurrir durante la instalación de dependencias de npm
+- Solución: Ejecutar `docker system prune -f` y volver a intentar
+- Alternativamente: `docker-compose down` y `docker-compose up --build`
+
+### Error: "Couldn't find any `pages` or `app` directory"
+- Este error ocurre cuando Next.js trata de ejecutar lint antes de copiar el código
+- Los Dockerfiles están optimizados para evitar este problema usando `--ignore-scripts`
+- Si persiste: Verificar que el directorio `src/pages` existe en el frontend
+
+### Error durante npm ci en el contenedor
+- Verificar que el archivo `package.json` no tenga scripts `prepare` problemáticos
+- Los Dockerfiles usan `--ignore-scripts` para evitar estos problemas
+- Si necesitas ejecutar scripts manualmente: `docker-compose exec frontend npm run <script>`
+
+### Advertencia: "the attribute `version` is obsolete"
+- Esta advertencia es normal en versiones recientes de Docker Compose
+- Los archivos ya están actualizados para evitar esta advertencia
+
+### Error de permisos en Windows
+- Si tienes problemas con permisos, ejecuta Docker Desktop como administrador
+- Asegúrate de que WSL2 esté habilitado si usas Docker Desktop en Windows
+
 ## 🤝 Contribución
 
 1. Fork el proyecto

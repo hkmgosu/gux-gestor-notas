@@ -98,9 +98,9 @@ describe("NoteCard", () => {
     const noteWithoutUser = {
       ...mockNote,
       user: undefined,
-    } as any;
+    } as unknown;
 
-    render(<NoteCard note={noteWithoutUser} />);
+    render(<NoteCard note={noteWithoutUser as typeof mockNote} />);
 
     expect(screen.getByText("Test Note")).toBeInTheDocument();
     expect(screen.getByText(/Dueño: Unknown/)).toBeInTheDocument();

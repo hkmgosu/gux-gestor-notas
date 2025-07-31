@@ -8,8 +8,9 @@ import NotesPage from "../pages/notes";
 jest.mock("next/router", () => ({
   useRouter: jest.fn(),
 }));
-jest.mock("axios");
 
+// Get the mocked axios
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 const mockPush = jest.fn();
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 mockUseRouter.mockReturnValue({
@@ -34,8 +35,6 @@ mockUseRouter.mockReturnValue({
   isPreview: false,
 });
 
-const mockedAxios = axios as jest.MockedFunction<typeof axios>;
-
 // Mock AuthContext with same pattern as AuthorizationFeatures.test.tsx
 interface User {
   id: number;
@@ -54,41 +53,26 @@ const MockAuthProvider = ({
   children,
   initialUser,
   initialToken,
-}: MockAuthProviderProps) => (
-  <div data-testid="mock-provider">
-    {React.cloneElement(children, {
-      "data-mock-user": JSON.stringify(initialUser),
-      "data-mock-token": initialToken,
-    })}
-  </div>
-);
+}: MockAuthProviderProps) => {
+  // Update the mock state when rendering
+  mockAuthState.user = initialUser;
+  mockAuthState.isAdmin = initialUser?.role === "admin" || false;
+  mockAuthState.token = initialToken;
 
-// Mock useAuth hook
+  return <div data-testid="mock-provider">{children}</div>;
+};
+
+// Mock useAuth hook with proper state management
+let mockAuthState = {
+  user: null as User | null,
+  isAdmin: false,
+  token: null as string | null,
+  login: jest.fn(),
+  logout: jest.fn(),
+};
+
 jest.mock("../app/contexts/AuthContext", () => ({
-  useAuth: () => {
-    const element = document.querySelector('[data-testid="mock-provider"] > *');
-    if (element) {
-      const userString = element.getAttribute("data-mock-user");
-      const token = element.getAttribute("data-mock-token");
-      const user = userString ? JSON.parse(userString) : null;
-
-      return {
-        user,
-        isAdmin: user?.role === "admin",
-        token,
-        login: jest.fn(),
-        logout: jest.fn(),
-      };
-    }
-
-    return {
-      user: null,
-      isAdmin: false,
-      token: null,
-      login: jest.fn(),
-      logout: jest.fn(),
-    };
-  },
+  useAuth: () => mockAuthState,
 }));
 
 describe("Search and Filter Features Tests", () => {
@@ -306,7 +290,13 @@ describe("Search and Filter Features Tests", () => {
         );
         fireEvent.change(searchInput, { target: { value: "react" } });
 
-        expect(screen.getByText(/Búsqueda: "react"/)).toBeInTheDocument();
+        // Look for the search indicator span element
+        const searchIndicator = document.querySelector(
+          ".bg-yellow-100.text-yellow-800"
+        );
+        expect(searchIndicator).toBeInTheDocument();
+        expect(searchIndicator?.textContent).toContain("Búsqueda:");
+        expect(searchIndicator?.textContent).toContain("react");
       });
     });
 

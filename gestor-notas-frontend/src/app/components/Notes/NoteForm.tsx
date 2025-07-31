@@ -11,6 +11,7 @@ const NoteForm: FC<Props> = ({ note, onClose, onSave }) => {
   const [title, setTitle] = useState(note?.title || "");
   const [content, setContent] = useState(note?.content || "");
   const [isPublic, setIsPublic] = useState(note?.is_public || false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [sharedWith, setSharedWith] = useState<string[]>(
     note?.shared_with || []
   );

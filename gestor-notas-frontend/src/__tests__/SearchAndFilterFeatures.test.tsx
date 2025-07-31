@@ -2,22 +2,15 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter } from "next/router";
 import NotesPage from "../pages/notes";
+import axios from "axios";
 
 // Mock dependencies
 jest.mock("next/router", () => ({
   useRouter: jest.fn(),
 }));
-jest.mock("axios", () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
-    isAxiosError: jest.fn(),
-  },
-}));
 
+// Get the mocked axios
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 const mockPush = jest.fn();
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 mockUseRouter.mockReturnValue({
@@ -66,32 +59,29 @@ const MockAuthProvider = ({
   initialUser,
   initialToken,
 }: MockAuthProviderProps) => {
-  const mockAuthValue = {
-    user: initialUser,
-    isAdmin: initialUser?.role === "admin",
-    token: initialToken,
-    login: jest.fn(),
-    logout: jest.fn(),
-  };
+  // Update the mock state when rendering
+  mockAuthState.user = initialUser;
+  mockAuthState.isAdmin = initialUser?.role === "admin" || false;
+  mockAuthState.token = initialToken;
 
-  return React.cloneElement(children, { mockAuthValue });
+  return <div data-testid="mock-provider">{children}</div>;
 };
 
-// Mock useAuth hook
+// Mock useAuth hook with proper state management
+let mockAuthState = {
+  user: null as User | null,
+  isAdmin: false,
+  token: null as string | null,
+  login: jest.fn(),
+  logout: jest.fn(),
+};
+
 jest.mock("../app/contexts/AuthContext", () => ({
-  useAuth: () => {
-    // Return a default mock that will be overridden by the test setup
-    return {
-      user: null,
-      isAdmin: false,
-      token: null,
-      login: jest.fn(),
-      logout: jest.fn(),
-    };
-  },
+  useAuth: () => mockAuthState,
 }));
 
 describe("Search and Filter Features Tests", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const mockAxios = require("axios").default;
 
   beforeEach(() => {

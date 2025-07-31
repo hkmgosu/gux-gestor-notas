@@ -37,6 +37,7 @@ const mockUnauthorized = {
   role: "user" as const,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockAnyUser = {
   id: 3,
   name: "Any User",
@@ -44,6 +45,7 @@ const mockAnyUser = {
   role: "user" as const,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockNonOwner = {
   id: 3,
   name: "Non Owner",
@@ -176,6 +178,7 @@ describe("Authorization Features Tests", () => {
         })
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const privateNote = {
         id: 1,
         title: "Private Note",

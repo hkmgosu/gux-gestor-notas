@@ -9,3 +9,16 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 Thumbs.db
+coverage/
+.nyc_output/
+*.tgz
+*.tar.gz
+.cache/
+.vscode/
+.idea/
+**/*.test.js
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.js
+**/*.spec.ts
+**/*.spec.tsx

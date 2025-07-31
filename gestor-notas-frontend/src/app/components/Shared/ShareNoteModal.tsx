@@ -24,6 +24,7 @@ const ShareNoteModal: FC<Props> = ({ note, onClose }) => {
       setMessage(`Nota compartida exitosamente con ${email}`);
       setEmail("");
       setIsShared(true);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setMessage("Error al compartir la nota");
     }

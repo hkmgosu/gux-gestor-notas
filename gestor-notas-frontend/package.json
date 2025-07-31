@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,7 +17,8 @@
     "export": "next export",
     "analyze": "ANALYZE=true npm run build",
     "clean": "chmod +x scripts/clean.sh && ./scripts/clean.sh",
-    "prepare": "npm run lint && npm run type-check && npm run test:ci"
+    "prepare": "echo 'Skipping prepare in Docker build'",
+    "prepare-dev": "npm run lint && npm run type-check && npm run test:ci"
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",

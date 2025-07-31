@@ -358,7 +358,7 @@ export default function NotesPage() {
             )}
             {searchTerm && (
               <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
-                Búsqueda: "{searchTerm}"
+                Búsqueda: &ldquo;{searchTerm}&rdquo;
               </span>
             )}
           </div>
